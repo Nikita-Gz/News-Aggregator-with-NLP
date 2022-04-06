@@ -1,0 +1,5 @@
+{% for answer in answers %}
+  <p>Answer {{ forloop.counter }}: {{ answer.answer }} | {{ answer.certainty }} certainty
+  <button type="button" class="article_answer_rate_button" id="article_answer_rate_button{{answer.id}}" data-answerid="{{ answer.id }}">Rate up answer</button>
+  </p>
+{% endfor %}

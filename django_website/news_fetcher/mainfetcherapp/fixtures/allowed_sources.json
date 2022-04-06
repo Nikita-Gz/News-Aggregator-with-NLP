@@ -1,0 +1,20 @@
+[
+  {
+    "model": "mainfetcherapp.source",
+    "pk": 1,
+    "fields": {
+      "url": "https://www.pcgamer.com/uk/",
+      "name": "PC Gamer",
+      "assigned_to_user_by_default": true
+    }
+  },
+  {
+    "model": "mainfetcherapp.source",
+    "pk": 2,
+    "fields": {
+      "url": "https://www.gameinformer.com/",
+      "name": "Game Informer",
+      "assigned_to_user_by_default": false
+    }
+  }
+]

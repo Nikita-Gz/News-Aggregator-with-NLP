@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <form action="{% url 'sourcesSetup' %}" method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <input type="submit" value="OK">
+    </form>
+  </body>
+</html>

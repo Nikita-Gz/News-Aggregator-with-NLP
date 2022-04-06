@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+{% load filters %}
+<html>
+
+{% if username %}
+    {% if not staff %}
+        <p>Recommendations for: {{ recommendation_date }} ({{ total_article_count }} articles)</p>
+
+        {% if topics %}
+            {% for topic in topics %}
+                <p><p>===============================================================</p></p>
+                <p>Topic: {{ topic.name }} ({{ topic.article_count }} articles)</p>
+                <p>Topic top keywords: {{ topic.keywords }}</p>
+
+                {% for article in topic.articles %}
+                    <p><p>----------------------------------------------------------------</p></p>
+                    <p><a href="{{ article.content.url }}" target="_blank" and rel="noopener noreferrer">{{ article.content.title }} ({{ article.minutes_to_read }} minutes)</a></p>
+                    <p>Source: <a href="{{ article.content.source.url }}" target="_blank" and rel="noopener noreferrer">{{ article.content.source.name }}</a></p>
+                    <p>Keywords: {{ article.keywords }} </p>
+                    <!--<p>{{ article.content.text|slice:":200" }}</p>-->
+                    <p>Summary:</p>
+                    {% with article.content.summary|split:"." as summary_points %}
+                        {% for summary_point in summary_points %}
+                            {{ forloop.counter }}) {{ summary_point }}<br>
+                        {% endfor %}
+                    {% endwith %}
+                    {% if article.content.main_image %}
+                        <p><img src="{{ article.content.main_image }}" alt="Main image" height="250"></p>
+                    {% else %}
+                        <p>No image</p>
+                    {% endif %}
+                    <input type="text" id="article_{{article.content.id}}_question" required minlength="1" maxlength="90" size="50">
+                    <button type="button" class="article_question_button" id="article_question_button{{article.content.id}}" data-articleid="{{ article.content.id }}">Ask question</button>
+                    <p id="article_{{article.content.id}}_answer"></p>
+                {% endfor %}
+            {% endfor %}
+        {% else %}
+            <p>No recommendations available yet, check again later!</p>
+        {% endif %}
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script type="text/javascript">
+
+    function attach_answer_rate_button_listener() {
+        $('.article_answer_rate_button').on("click", function(){
+        answerid = $(this).attr("data-answerid");
+        $.ajax(
+        {
+            type:"GET",
+            url: "/rate_article_answer",
+            data:{
+                answer_id: answerid
+            },
+            success: function( data ) 
+            {
+                $( "#article_answer_rate_button" + answerid).remove();
+            }
+        })
+        });
+    }
+
+    // question submitting functionality
+    $('.article_question_button').on("click", function(){
+    articleid = $(this).attr("data-articleid");
+    question = $("#article_" + articleid + "_question").val()
+    $( "#article_" + articleid + "_answer" ).text("Please wait for an answer...");
+    $.ajax(
+    {
+        type:"GET",
+        url: "/ask_post",
+        data:{
+            article_id: articleid,
+            question: question
+        },
+        success: function( data ) 
+        {
+            $( "#article_" + articleid + "_answer" ).html(data);
+            attach_answer_rate_button_listener()
+        }
+     })
+    });
+    </script>
+        
+    {% else %}
+        <p>U are a staff!</p>
+    {% endif %}
+{% else %}
+    <p>Oooi nothiiing, u are not registeredd!!!</p>
+    <a href="{% url 'register' %}">Register</a>
+    <a href="{% url 'login' %}">Login</a>
+{% endif %}
+
+</html>
