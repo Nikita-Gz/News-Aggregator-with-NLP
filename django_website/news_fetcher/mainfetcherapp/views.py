@@ -54,7 +54,7 @@ def recommendations_page(request: HttpRequest):
 	for topic in topics:
 		topic_data = {'name': topic.topic_name}
 
-		# todo: !!! REMOVE THE FIRST ARTICLE BYPASS
+		# todo: !!! REMOVE THE SKIPPING OF THE FIRST ARTICLE, ITS A QUICK FIX TO AVOID THE LINK THAT WAS MISTAKEN FOR AN ARTICLE
 		recommendations_for_topic = topic.recommendation_set.all()[1:]
 		articles_to_render = []
 		keyword_counts = dict()
@@ -97,6 +97,8 @@ def recommendations_page(request: HttpRequest):
 
 def answer_post_question(request: HttpRequest):
 	user = request.user
+
+	# tidi: select random model
 	model_id, model_pipeline = list(qa_models.items())[0]
 
 	# todo: check validity
