@@ -42,7 +42,7 @@ def recommendations_page(request: HttpRequest):
 	if user.is_staff:
 		return render(request=request, template_name="mainfetcherapp/homepage.html", context={'username':username, 'staff':True})
 
-	latest_serving = RecommendationServing.objects.filter(user=user, is_being_prepared=False).order_by('recommendation_date').first()
+	latest_serving = RecommendationServing.objects.filter(user=user, is_being_prepared=False).order_by('recommendation_date').last()
 	if latest_serving is None:
 		# todo: fallback on some default serving
 		print(f'Didnt find serving for user {user.username}')

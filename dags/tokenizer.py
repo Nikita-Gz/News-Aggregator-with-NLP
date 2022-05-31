@@ -14,3 +14,6 @@ class LemmaTokenizer:
       self.wnl = WordNetLemmatizer()
     def __call__(self, doc):
       return [self.wnl.lemmatize(t) for t in word_tokenize(doc) if t not in self.ignore_tokens]
+
+    def lemmatize_already_tokenized_texts(self, doc):
+      return [self.wnl.lemmatize(t) for t in doc if t not in self.ignore_tokens]

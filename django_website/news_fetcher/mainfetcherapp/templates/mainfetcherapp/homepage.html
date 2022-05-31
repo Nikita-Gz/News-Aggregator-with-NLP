@@ -1,38 +1,71 @@
 <!DOCTYPE html>
 {% load filters %}
 <html>
+{% load static %}
+{% include "mainfetcherapp/head.html" %}
 
+<body>
+
+{% include "mainfetcherapp/navbar.html" %}
+
+<div class="container">
 {% if username %}
     {% if not staff %}
-        <p>Recommendations for: {{ recommendation_date }} ({{ total_article_count }} articles)</p>
+        <h1>Recommendations for: {{ recommendation_date }} ({{ total_article_count }} articles)</h1>
 
         {% if topics %}
+            <h2>Table of contents</h2>
+            <ul class="list-group list-group-flush">
             {% for topic in topics %}
-                <p><p>===============================================================</p></p>
-                <p>Topic: {{ topic.name }} ({{ topic.article_count }} articles)</p>
-                <p>Topic top keywords: {{ topic.keywords }}</p>
+                <li class="list-group-item"><a href="{% url 'homepage' %}#topic_{{ forloop.counter }}_anchor">Topics: {{ topic.name }} ({{ topic.article_count }} articles)</a></li>
+            {% endfor %}
+            </ul>
 
+            {% for topic in topics %}
+                <a name="topic_{{ forloop.counter }}_anchor"></a>
+                <div>
+
+                <h2><p>Topics: {{ topic.name }} ({{ topic.article_count }} articles)</p></h2>
+                <!--<p>Topic top keywords: {{ topic.keywords }}</p>-->
+                
+                <ul class="list-group">
                 {% for article in topic.articles %}
-                    <p><p>----------------------------------------------------------------</p></p>
-                    <p><a href="{{ article.content.url }}" target="_blank" and rel="noopener noreferrer">{{ article.content.title }} ({{ article.minutes_to_read }} minutes)</a></p>
-                    <p>Source: <a href="{{ article.content.source.url }}" target="_blank" and rel="noopener noreferrer">{{ article.content.source.name }}</a></p>
-                    <p>Keywords: {{ article.keywords }} </p>
+                    <li class="list-group-item">
+                    <div>
+                    <h3><p><a href="{{ article.content.url }}" target="_blank" and rel="noopener noreferrer">{{ article.content.title }}</a></p></h3>
+                    <h4>Source: <a href="{{ article.content.source.url }}" target="_blank" and rel="noopener noreferrer">{{ article.content.source.name }}</a></h4>
+                    <p>Time to read: {{ article.minutes_to_read }} minutes</p>
+                    <!--<p>Keywords: {{ article.keywords }} </p>-->
+                    <div class="container">
+                        {% if article.content.main_image %}
+                            <p><img src="{{ article.content.main_image }}" alt="Main image" height="250"></p>
+                        {% else %}
+                            <p>No image</p>
+                        {% endif %}
+                    </div>  
                     <!--<p>{{ article.content.text|slice:":200" }}</p>-->
-                    <p>Summary:</p>
+                    <h4>Short summary:</h4>
                     {% with article.content.summary|split:"." as summary_points %}
+                        <ul class="list-group list-group-flush">
                         {% for summary_point in summary_points %}
-                            {{ forloop.counter }}) {{ summary_point }}<br>
+                            <li class="list-group-item">{{ forloop.counter }}) {{ summary_point }}.</li>
                         {% endfor %}
+                        </ul>
                     {% endwith %}
-                    {% if article.content.main_image %}
-                        <p><img src="{{ article.content.main_image }}" alt="Main image" height="250"></p>
-                    {% else %}
-                        <p>No image</p>
-                    {% endif %}
+                    <br>
+                    <div>
+                    <h4>Ask a question about the article:</h4>
                     <input type="text" id="article_{{article.content.id}}_question" required minlength="1" maxlength="90" size="50">
                     <button type="button" class="article_question_button" id="article_question_button{{article.content.id}}" data-articleid="{{ article.content.id }}">Ask question</button>
-                    <p id="article_{{article.content.id}}_answer"></p>
+                    <br>
+                    <div id="article_{{article.content.id}}_answer"></div>
+                    </div>
+                    </div>
+                    </li>
                 {% endfor %}
+                </ul>
+                </div>
+                <br/>
             {% endfor %}
         {% else %}
             <p>No recommendations available yet, check again later!</p>
@@ -85,9 +118,10 @@
         <p>U are a staff!</p>
     {% endif %}
 {% else %}
-    <p>Oooi nothiiing, u are not registeredd!!!</p>
+    <p>You are not registered. Please register to gain access to recommendations</p>
     <a href="{% url 'register' %}">Register</a>
     <a href="{% url 'login' %}">Login</a>
 {% endif %}
-
+</div>
+</body>
 </html>

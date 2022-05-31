@@ -1,6 +1,11 @@
+<!DOCTYPE html>
+<html>
+{% include "mainfetcherapp/head.html" %}
 {% block content %}      
 
 {% load crispy_forms_tags %}
+<body>
+{% include "mainfetcherapp/navbar.html" %}
 
 <!--Login--> 
 <div class="container py-5">
@@ -12,5 +17,6 @@
   </form>
   <p class="text-center">Don't have an account? <a href="/register">Create an account</a>.</p>
 </div>
-
+</body>
 {% endblock %}
+</html>

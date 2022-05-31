@@ -6,7 +6,7 @@ import logging
 
 def lemmatize_keywords(key_words):
   wordnet_lemmatizer = WordNetLemmatizer()
-  return list(set([wordnet_lemmatizer.lemmatize(keyword) for keyword in key_words]))
+  return list([wordnet_lemmatizer.lemmatize(keyword) for keyword in key_words])
 
 def extract_article_keywords():
   session = get_website_db_session()

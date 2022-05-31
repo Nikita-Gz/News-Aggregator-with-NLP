@@ -16,5 +16,14 @@
       "name": "Game Informer",
       "assigned_to_user_by_default": false
     }
+  },
+  {
+    "model": "mainfetcherapp.source",
+    "pk": 3,
+    "fields": {
+      "url": "https://www.jpl.nasa.gov/news",
+      "name": "NASA",
+      "assigned_to_user_by_default": false
+    }
   }
 ]

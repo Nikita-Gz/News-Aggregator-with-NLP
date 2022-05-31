@@ -1,15 +1,12 @@
-{% load crispy_forms_tags %}         
+<!DOCTYPE html>
+<html>
+{% load crispy_forms_tags %}
+{% include "mainfetcherapp/head.html" %}
+<body>
+{% include "mainfetcherapp/navbar.html" %}
 
 <!--Register--> 
 <div class="container py-5">
-	{% if messages %}
-		<ul>
-			{% for message in messages %}
-				<li>{{ message }}</li>
-			{% endfor %}
-		</ul>
-	{% endif %}
-
 	<h1>Register</h1>
 	<form method="POST">
 		{% csrf_token %}
@@ -18,3 +15,5 @@
 	</form>
 	<p class="text-center">If you already have an account, <a href="/login">login</a> instead.</p>
 </div>
+</body>
+</html>

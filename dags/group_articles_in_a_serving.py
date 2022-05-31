@@ -5,9 +5,17 @@ from typing import List, Dict
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import TfidfVectorizer
 from tokenizer import LemmaTokenizer
+import gensim
+import gensim.corpora as corpora
+from gensim.utils import simple_preprocess
 import nltk
 import numpy as np
 import logging
+
+stop_words = stopwords.words('english')
+stop_words.extend(['from', 'subject', 're', 'edu', 'use'])
+tokenizer = LemmaTokenizer()
+token_stopwords = tokenizer(' '.join(stop_words))
 
 random_state = 22
 clustering_returned_categories_ids_key = 0
@@ -15,10 +23,6 @@ clustering_returned_categories_names_key = 1
 clustering_returned_categories_amount_key = 2
 
 def kmeans_4_topic_clustering(*, articles: List[Article], **kwargs)->Dict:
-  # get tf-idf first
-  tokenizer = LemmaTokenizer()
-  stop_words = set(stopwords.words('english')) 
-  token_stopwords = tokenizer(' '.join(stop_words))
   vectorizer = TfidfVectorizer(tokenizer=tokenizer, stop_words=token_stopwords, max_features=200)
   tfidf_results = vectorizer.fit_transform([article.text for article in articles])
   logging.info(f'tfidf result dimensions: {tfidf_results.shape}')
@@ -35,11 +39,74 @@ def kmeans_4_topic_clustering(*, articles: List[Article], **kwargs)->Dict:
   return clustering_result
 
 
+def lda_4_topic_clustering(*, articles: List[Article], **kwargs)->Dict:
+  def sent_to_words(sentences):
+    for sentence in sentences:
+      # deacc=True removes punctuations
+      yield(gensim.utils.simple_preprocess(str(sentence), deacc=True))
+
+  def remove_stopwords(texts):
+    return [[word for word in simple_preprocess(str(doc)) 
+             if word not in stop_words] for doc in texts]
+
+  def lemmatize(texts):
+    return [tokenizer.lemmatize_already_tokenized_texts(text) for text in texts]
+
+  data_words = list(sent_to_words([article.text for article in articles]))
+  data_words = remove_stopwords(data_words)
+  #data_words = lemmatize(data_words)
+
+  id2word = corpora.Dictionary(data_words)
+  texts = data_words
+  corpus = [id2word.doc2bow(text) for text in texts]
+
+  num_topics = 4
+  lda_model = gensim.models.LdaModel(corpus=corpus,
+                                     id2word=id2word,
+                                     passes=3,
+                                     num_topics=num_topics)
+  results = lda_model[corpus]
+
+  def get_topic_from_lda_result(result):
+    best_fitting_topic = 0
+    top_certainty = 0
+    for topic_tuple in result:
+      topic_id = topic_tuple[0]
+      certainty = topic_tuple[1]
+      
+      if certainty > top_certainty:
+        best_fitting_topic = topic_id
+        top_certainty = certainty
+    return best_fitting_topic
+
+  # decides which topic ID each article has
+  topic_ids = np.zeros(len(results))
+  for result_i, lda_result_for_article in enumerate(results):
+    topic_ids[result_i] = get_topic_from_lda_result(lda_result_for_article)
+  
+  # composes topic descriptions
+  topic_descriptions = dict()
+  for topic_i in range(num_topics):
+    topic_description_tuples = lda_model.show_topic(topic_i)[:10]
+    topic_words = [keyword for keyword, _ in topic_description_tuples]
+    topic_name = ', '.join(topic_words)
+    topic_descriptions[topic_i] = topic_name
+
+  clustering_result = {
+    clustering_returned_categories_ids_key: topic_ids,
+    clustering_returned_categories_names_key: topic_descriptions,
+    clustering_returned_categories_amount_key: num_topics
+  }
+  return clustering_result
+
+
+
 def choose_clustering_algorithm():
   # todo: add others
-  algo_id = 0
+  algo_id = 1
   clustering_algos = {
-    0: kmeans_4_topic_clustering
+    0: kmeans_4_topic_clustering,
+    1: lda_4_topic_clustering
   }
 
   return algo_id, clustering_algos[algo_id]
