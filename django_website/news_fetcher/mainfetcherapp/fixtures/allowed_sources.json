@@ -1,28 +1,64 @@
 [
   {
     "model": "mainfetcherapp.source",
-    "pk": 1,
+    "pk": 3,
     "fields": {
-      "url": "https://www.pcgamer.com/uk/",
-      "name": "PC Gamer",
-      "assigned_to_user_by_default": true
-    }
-  },
-  {
-    "model": "mainfetcherapp.source",
-    "pk": 2,
-    "fields": {
-      "url": "https://www.gameinformer.com/",
-      "name": "Game Informer",
+      "url": "https://www.jpl.nasa.gov/news",
+      "name": "NASA",
       "assigned_to_user_by_default": false
     }
   },
   {
     "model": "mainfetcherapp.source",
-    "pk": 3,
+    "pk": 4,
     "fields": {
-      "url": "https://www.jpl.nasa.gov/news",
-      "name": "NASA",
+      "url": "https://www.skysports.com/",
+      "name": "Sky Sports",
+      "assigned_to_user_by_default": false
+    }
+  },
+  {
+    "model": "mainfetcherapp.source",
+    "pk": 5,
+    "fields": {
+      "url": "https://www.sciencedaily.com/",
+      "name": "Science Daily",
+      "assigned_to_user_by_default": true
+    }
+  },
+  {
+    "model": "mainfetcherapp.source",
+    "pk": 6,
+    "fields": {
+      "url": "https://www.medicalnewstoday.com/",
+      "name": "Medical News Today",
+      "assigned_to_user_by_default": false
+    }
+  },
+  {
+    "model": "mainfetcherapp.source",
+    "pk": 8,
+    "fields": {
+      "url": "https://www.timeshighereducation.com/",
+      "name": "Times Higher Education",
+      "assigned_to_user_by_default": false
+    }
+  },
+  {
+    "model": "mainfetcherapp.source",
+    "pk": 9,
+    "fields": {
+      "url": "https://www.space.com/news",
+      "name": "Space.com",
+      "assigned_to_user_by_default": false
+    }
+  },
+  {
+    "model": "mainfetcherapp.source",
+    "pk": 10,
+    "fields": {
+      "url": "https://www.cdc.gov/media/index.html",
+      "name": "CDC",
       "assigned_to_user_by_default": false
     }
   }

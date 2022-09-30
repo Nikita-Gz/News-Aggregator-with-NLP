@@ -27,7 +27,7 @@ def kmeans_4_topic_clustering(*, articles: List[Article], **kwargs)->Dict:
   tfidf_results = vectorizer.fit_transform([article.text for article in articles])
   logging.info(f'tfidf result dimensions: {tfidf_results.shape}')
 
-  n_clusters = 4
+  n_clusters = 3
   clusterizer = KMeans(n_clusters, random_state=random_state)
   category_ids = clusterizer.fit_predict(tfidf_results)
 
@@ -60,10 +60,10 @@ def lda_4_topic_clustering(*, articles: List[Article], **kwargs)->Dict:
   texts = data_words
   corpus = [id2word.doc2bow(text) for text in texts]
 
-  num_topics = 4
+  num_topics = 3
   lda_model = gensim.models.LdaModel(corpus=corpus,
                                      id2word=id2word,
-                                     passes=3,
+                                     passes=10,
                                      num_topics=num_topics)
   results = lda_model[corpus]
 

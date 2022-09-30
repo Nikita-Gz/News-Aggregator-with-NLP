@@ -38,6 +38,9 @@ class Article(models.Model):
   publish_date = models.TextField()
   download_date = models.DateTimeField(null=True)
 
+  def summary_as_list(self):
+    return self.summary.split('\n')
+
   def __str__(self):
     return '{}'.format(self.url)
 

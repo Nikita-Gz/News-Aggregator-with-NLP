@@ -1,127 +1,119 @@
-<!DOCTYPE html>
-{% load filters %}
+<!DOCTYPE html> {% load filters %}
 <html>
-{% load static %}
-{% include "mainfetcherapp/head.html" %}
+{% load static %} {% include "mainfetcherapp/head.html" %}
 
 <body>
 
-{% include "mainfetcherapp/navbar.html" %}
+    {% include "mainfetcherapp/navbar.html" %}
 
-<div class="container">
-{% if username %}
-    {% if not staff %}
+    <div class="container">
+        {% if username %} {% if not staff %}
         <h1>Recommendations for: {{ recommendation_date }} ({{ total_article_count }} articles)</h1>
-
-        {% if topics %}
-            <h2>Table of contents</h2>
-            <ul class="list-group list-group-flush">
+        {% if default_serving %}
+        <p>These are default recommendations, come back later for recommendations based on your preferences!</p>
+        {% endif %} {% if topics %}
+        <h2>Table of contents</h2>
+        <ul class="list-group list-group-flush">
             {% for topic in topics %}
-                <li class="list-group-item"><a href="{% url 'homepage' %}#topic_{{ forloop.counter }}_anchor">Topics: {{ topic.name }} ({{ topic.article_count }} articles)</a></li>
+            <li class="list-group-item"><a href="{% url 'homepage' %}#topic_{{ forloop.counter }}_anchor">Topic with keywords "{{ topic.name }}" ({{ topic.article_count }} articles)</a></li>
             {% endfor %}
-            </ul>
+        </ul>
 
-            {% for topic in topics %}
-                <a name="topic_{{ forloop.counter }}_anchor"></a>
-                <div>
+        {% for topic in topics %}
+        <a name="topic_{{ forloop.counter }}_anchor"></a>
+        <div>
 
-                <h2><p>Topics: {{ topic.name }} ({{ topic.article_count }} articles)</p></h2>
-                <!--<p>Topic top keywords: {{ topic.keywords }}</p>-->
-                
-                <ul class="list-group">
+            <h2>
+                <p>Topic with keywords "{{ topic.name }}" ({{ topic.article_count }} articles)</p>
+            </h2>
+            <!--<p>Topic top keywords: {{ topic.keywords }}</p>-->
+
+            <ul class="list-group">
                 {% for article in topic.articles %}
-                    <li class="list-group-item">
+                <li class="list-group-item">
                     <div>
-                    <h3><p><a href="{{ article.content.url }}" target="_blank" and rel="noopener noreferrer">{{ article.content.title }}</a></p></h3>
-                    <h4>Source: <a href="{{ article.content.source.url }}" target="_blank" and rel="noopener noreferrer">{{ article.content.source.name }}</a></h4>
-                    <p>Time to read: {{ article.minutes_to_read }} minutes</p>
-                    <!--<p>Keywords: {{ article.keywords }} </p>-->
-                    <div class="container">
-                        {% if article.content.main_image %}
+                        <h3>
+                            <p><a href="{{ article.content.url }}" target="_blank" and rel="noopener noreferrer">{{ article.content.title }}</a></p>
+                        </h3>
+                        <h4>Source: <a href="{{ article.content.source.url }}" target="_blank" and rel="noopener noreferrer">{{ article.content.source.name }}</a></h4>
+                        <p>Time to read: {{ article.minutes_to_read }} minutes</p>
+                        <!--<p>Keywords: {{ article.keywords }} </p>-->
+                        <div class="container">
+                            {% if article.content.main_image %}
                             <p><img src="{{ article.content.main_image }}" alt="Main image" height="250"></p>
-                        {% else %}
+                            {% else %}
                             <p>No image</p>
-                        {% endif %}
-                    </div>  
-                    <!--<p>{{ article.content.text|slice:":200" }}</p>-->
-                    <h4>Short summary:</h4>
-                    {% with article.content.summary|split:"." as summary_points %}
+                            {% endif %}
+                        </div>
+                        <!--<p>{{ article.content.text|slice:":200" }}</p>-->
+                        <h4>Short summary:</h4>
                         <ul class="list-group list-group-flush">
-                        {% for summary_point in summary_points %}
-                            <li class="list-group-item">{{ forloop.counter }}) {{ summary_point }}.</li>
-                        {% endfor %}
+                            {% for summary_point in article.content.summary_as_list %}
+                            <li class="list-group-item">{{ forloop.counter }}) {{ summary_point }}</li>
+                            {% endfor %}
                         </ul>
-                    {% endwith %}
-                    <br>
-                    <div>
-                    <h4>Ask a question about the article:</h4>
-                    <input type="text" id="article_{{article.content.id}}_question" required minlength="1" maxlength="90" size="50">
-                    <button type="button" class="article_question_button" id="article_question_button{{article.content.id}}" data-articleid="{{ article.content.id }}">Ask question</button>
-                    <br>
-                    <div id="article_{{article.content.id}}_answer"></div>
+                        <br>
+                        <div>
+                            <h4>Ask a question about the article:</h4>
+                            <input type="text" id="article_{{article.content.id}}_question" required minlength="1" maxlength="90" size="50">
+                            <button type="button" class="article_question_button" id="article_question_button{{article.content.id}}" data-articleid="{{ article.content.id }}">Ask question</button>
+                            <br>
+                            <div id="article_{{article.content.id}}_answer"></div>
+                        </div>
                     </div>
-                    </div>
-                    </li>
+                </li>
                 {% endfor %}
-                </ul>
-                </div>
-                <br/>
-            {% endfor %}
-        {% else %}
-            <p>No recommendations available yet, check again later!</p>
+            </ul>
+        </div>
+        <br/> {% endfor %} {% else %}
+        <p>No recommendations available yet, check again later!</p>
         {% endif %}
 
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
-    <script type="text/javascript">
-
-    function attach_answer_rate_button_listener() {
-        $('.article_answer_rate_button').on("click", function(){
-        answerid = $(this).attr("data-answerid");
-        $.ajax(
-        {
-            type:"GET",
-            url: "/rate_article_answer",
-            data:{
-                answer_id: answerid
-            },
-            success: function( data ) 
-            {
-                $( "#article_answer_rate_button" + answerid).remove();
+        <script type="text/javascript">
+            function attach_answer_rate_button_listener() {
+                $('.article_answer_rate_button').on("click", function() {
+                    answerid = $(this).attr("data-answerid");
+                    $.ajax({
+                        type: "GET",
+                        url: "/rate_article_answer",
+                        data: {
+                            answer_id: answerid
+                        },
+                        success: function(data) {
+                            $("#article_answer_rate_button" + answerid).remove();
+                        }
+                    })
+                });
             }
-        })
-        });
-    }
 
-    // question submitting functionality
-    $('.article_question_button').on("click", function(){
-    articleid = $(this).attr("data-articleid");
-    question = $("#article_" + articleid + "_question").val()
-    $( "#article_" + articleid + "_answer" ).text("Please wait for an answer...");
-    $.ajax(
-    {
-        type:"GET",
-        url: "/ask_post",
-        data:{
-            article_id: articleid,
-            question: question
-        },
-        success: function( data ) 
-        {
-            $( "#article_" + articleid + "_answer" ).html(data);
-            attach_answer_rate_button_listener()
-        }
-     })
-    });
-    </script>
-        
-    {% else %}
+            // question submitting functionality
+            $('.article_question_button').on("click", function() {
+                articleid = $(this).attr("data-articleid");
+                question = $("#article_" + articleid + "_question").val()
+                $("#article_" + articleid + "_answer").text("Please wait for an answer...");
+                $.ajax({
+                    type: "GET",
+                    url: "/ask_post",
+                    data: {
+                        article_id: articleid,
+                        question: question
+                    },
+                    success: function(data) {
+                        $("#article_" + articleid + "_answer").html(data);
+                        attach_answer_rate_button_listener()
+                    }
+                })
+            });
+        </script>
+
+        {% else %}
         <p>U are a staff!</p>
-    {% endif %}
-{% else %}
-    <p>You are not registered. Please register to gain access to recommendations</p>
-    <a href="{% url 'register' %}">Register</a>
-    <a href="{% url 'login' %}">Login</a>
-{% endif %}
-</div>
+        {% endif %} {% else %}
+        <p>You are not registered. Please register to gain access to recommendations</p>
+        <a href="{% url 'register' %}">Register</a>
+        <a href="{% url 'login' %}">Login</a> {% endif %}
+    </div>
 </body>
+
 </html>

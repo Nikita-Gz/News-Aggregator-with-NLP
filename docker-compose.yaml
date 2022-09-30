@@ -86,12 +86,13 @@ services:
 
   django_website:
     build: ./django_website/
-    #command: python manage.py runserver 0.0.0.0:8000
+    command: bash -c "python ./news_fetcher/prepare_server.py && python ./news_fetcher/manage.py runserver 0.0.0.0:8000"
     ports:
       - "8000:8000"
     volumes:
       - ./django_website:/code
     environment:
+    # todo: use env variables
       - POSTGRES_NAME=website_db
       - POSTGRES_USER=airflow
       - POSTGRES_PASSWORD=airflow
@@ -143,7 +144,7 @@ services:
 
   airflow-worker:
     <<: *airflow-common
-    command: celery worker && pwd
+    command: celery worker
     healthcheck:
       test:
         - "CMD-SHELL"

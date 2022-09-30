@@ -6,7 +6,7 @@ from website_db_mapper import CurrentlyFetchedArticle, UserBeingFetchedFor, User
 import logging
 
 def connect_to_website_db():
-    # !! use propper password
+    # todo: !! use propper password in production
     return create_engine('postgresql+psycopg2://airflow:airflow@postgres:5432/website_db', echo=True)
 
 def get_website_db_session(engine=None) -> Session:

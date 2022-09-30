@@ -15,6 +15,7 @@ from django import forms
 from django.db.models.query import QuerySet
 
 from .models import Article, Source, UserSelectedSource, RecommendationServing, AnswerForArticle
+from .constants import default_serving_username
 
 '''
 def index(request: HttpRequest):
@@ -44,9 +45,23 @@ def recommendations_page(request: HttpRequest):
 
 	latest_serving = RecommendationServing.objects.filter(user=user, is_being_prepared=False).order_by('recommendation_date').last()
 	if latest_serving is None:
-		# todo: fallback on some default serving
-		print(f'Didnt find serving for user {user.username}')
-		return render(request=request, template_name="mainfetcherapp/homepage.html", context={"username":username})
+		# fallbacks on default serving
+		default_servings_user = User.objects.filter(username=default_serving_username).last()
+		latest_serving = RecommendationServing.objects.filter(user=default_servings_user, is_being_prepared=False).order_by('recommendation_date').last()
+
+		# do not use any serving if there's no default one
+		if latest_serving is None:
+			print(f'Found no servings for user {user.username} and no default servings')
+			context = {
+			"username":username,
+			}
+			return render (request=request, template_name="mainfetcherapp/homepage.html", context=context)
+
+		is_default_serving = True
+		print(f'Using default serving for user {user.username}')
+	else:
+		is_default_serving = False
+	
 
 	topics = latest_serving.recommendationtopic_set.all()
 	topics_to_render = []
@@ -54,8 +69,7 @@ def recommendations_page(request: HttpRequest):
 	for topic in topics:
 		topic_data = {'name': topic.topic_name}
 
-		# todo: !!! REMOVE THE SKIPPING OF THE FIRST ARTICLE, ITS A QUICK FIX TO AVOID THE LINK THAT WAS MISTAKEN FOR AN ARTICLE
-		recommendations_for_topic = topic.recommendation_set.all()[1:]
+		recommendations_for_topic = topic.recommendation_set.all()
 		articles_to_render = []
 		keyword_counts = dict()
 		for recommendation in recommendations_for_topic:
@@ -90,7 +104,8 @@ def recommendations_page(request: HttpRequest):
 	#print(latest_serving)
 	context = {
 		"username":username, 'topics': topics_to_render, 'recommendation_date': latest_serving.recommendation_date,
-		'total_article_count': total_article_count
+		'total_article_count': total_article_count,
+		'default_serving': is_default_serving
 		}
 	return render (request=request, template_name="mainfetcherapp/homepage.html", context=context)
 
@@ -98,7 +113,7 @@ def recommendations_page(request: HttpRequest):
 def answer_post_question(request: HttpRequest):
 	user = request.user
 
-	# tidi: select random model
+	# todo: select random model
 	model_id, model_pipeline = list(qa_models.items())[0]
 
 	# todo: check validity
@@ -144,6 +159,7 @@ def rate_article_answer(request: HttpRequest):
 		return HttpResponse(">:(")
 	
 	answer.rating = 1
+	answer.save()
 	return HttpResponse("")
 
 
@@ -169,12 +185,12 @@ def setup_sources(request):
 		newly_selected_sources = sources_selected.exclude(pk__in=previously_selected_sources)
 		deselected_sources = previously_selected_sources.exclude(pk__in=sources_selected)
 
-		# remove deselected "user <-> source" relations
+		# removes deselected "user <-> source" relations
 		# todo: bulk update
 		for removedSource in deselected_sources:
 			removedSource.selected_by_users.remove(user)
 
-		# add new "user <-> source" relations
+		# adds new "user <-> source" relations
 		# todo: bulk update
 		for newSource in newly_selected_sources:
 			newSource.selected_by_users.add(user)
@@ -193,7 +209,7 @@ def register_request(request):
 			login(request, user)
 			messages.success(request, "Registration successful." )
 
-			# add some default sources to user's source selection
+			# adds some default sources to user's source selection
 			# todo: bulk update
 			for source in Source.objects.filter(assigned_to_user_by_default=True):
 				source.selected_by_users.add(user)
@@ -211,12 +227,15 @@ def login_request(request):
 			username = form.cleaned_data.get('username')
 			password = form.cleaned_data.get('password')
 			user = authenticate(username=username, password=password)
-			if user is not None:
+
+			if user is None:
+				messages.error(request,"Invalid username or password.")
+			elif username != default_serving_username:
 				login(request, user)
 				messages.info(request, f"You are now logged in as {username}.")
-				return redirect("crossroads")
-			else:
-				messages.error(request,"Invalid username or password.")
+				return redirect("homepage")
+			elif username == default_serving_username:
+				messages.error(request,"Please use a different username.")
 		else:
 			messages.error(request,"Invalid username or password.")
 	form = AuthenticationForm()
