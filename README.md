@@ -20,6 +20,4 @@ Projet folders:
 Container structure:
 Django website container <=> PostgreSQL container <=> Airflow containers for news aggregation & NLP
 
-How to launch:
-1) Execute ```docker-compose build``` in project folder
-2) Execute ```docker-compose up``` in project folder
+How to launch and how to use: WIP
