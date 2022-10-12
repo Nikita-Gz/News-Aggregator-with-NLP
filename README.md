@@ -20,4 +20,5 @@ Projet folders:
 Container structure:
 Django website container <=> PostgreSQL container <=> Airflow containers for news aggregation & NLP
 
-How to launch and how to use: WIP
+How to launch and how to use:
+Project currently has issues on deployment, unfortunately
