@@ -21,4 +21,4 @@ Container structure:
 Django website container <=> PostgreSQL container <=> Airflow containers for aggregation & NLP processes
 
 How to launch and how to use:
-Project currently has issues on deployment, unfortunately
+Project currently has issues on deployment related to database initialization, unfortunately
