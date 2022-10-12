@@ -18,7 +18,7 @@ Projet folders:
 2) "django_website" - contains files for django website
 
 Container structure:
-Django website container <=> PostgreSQL container <=> Airflow containers for news aggregation & NLP
+Django website container <=> PostgreSQL container <=> Airflow containers for aggregation & NLP processes
 
 How to launch and how to use:
 Project currently has issues on deployment, unfortunately
