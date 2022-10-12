@@ -1,4 +1,4 @@
-# recomender_app
+# News Aggregator website with NLP
 Bachelor's diploma project. News aggregator website with text summarization, question answering and topic modelling. Utilizes airflow for scheduling the aggregation process
 
 Features
